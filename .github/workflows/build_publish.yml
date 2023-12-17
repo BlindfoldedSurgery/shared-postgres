@@ -1,0 +1,38 @@
+name: Build and deploy
+
+on:
+  push:
+    branches: [ main ]
+  pull_request: { }
+
+jobs:
+  lint:
+    name: "helm lint"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: BlindfoldedSurgery/github-action-helm@v0.3.0
+        with:
+          subcommand: lint
+          path: .
+          strict: true
+          namespace: blindfoldedsurgery
+
+  deploy:
+    name: "Publish to k8s"
+    if: success() && github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    concurrency: production
+    needs: [lint]
+    steps:
+      - uses: actions/checkout@v4
+      - name: install helm chart
+        uses: BlindfoldedSurgery/github-action-helm@v0.3.0
+        with:
+          subcommand: upgrade
+          ref: .
+          release_name: shared-postgres
+          namespace: blindfoldedsurgery
+          atomic: true
+          install: true
+          kubeconfig: ${{ secrets.KUBECONFIG_RAW }}

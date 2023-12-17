@@ -1,0 +1,19 @@
+apiVersion: "acid.zalan.do/v1"
+kind: postgresql
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
+spec:
+  teamId: {{ .Values.team.name }}
+  volume:
+    size: {{ .Values.volume.size }}
+  numberOfInstances: {{ .Values.replicas }}
+  users:
+    {{- .Values.users | toYaml | nindent 4}}
+  preparedDatabases:
+    {{- .Values.databases | toYaml | nindent 4 }}
+  postgresql:
+    version: {{ .Values.postgres.version | quote }}
+  env:
+    - name: ALLOW_NOSSL
+      value: "true"

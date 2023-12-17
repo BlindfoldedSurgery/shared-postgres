@@ -1,0 +1,19 @@
+name: shared-postgres
+team:
+  name: blindfoldedsurgery
+replicas: 1
+volume:
+  size: 1Gi
+postgres:
+  version: 15
+
+databases:
+  plex_request:
+    defaultUsers: true
+
+users:
+  admin:
+    - superuser
+    - createdb
+  postgres:
+    - createdb
